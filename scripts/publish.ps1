@@ -13,6 +13,32 @@ function Run-Git {
     if ($LASTEXITCODE -ne 0) { throw ('git failed: ' + ($args -join ' ')) }
 }
 
+function Sync-RemoteMain {
+    Run-Git fetch --no-tags origin
+    Invoke-RepoGit show-ref --verify --quiet refs/remotes/origin/main
+    $remoteRefExit = $LASTEXITCODE
+    if ($remoteRefExit -eq 1) { return }
+    if ($remoteRefExit -ne 0) { throw 'Cannot inspect origin/main.' }
+
+    # The local site and GitHub's starter commit may have independent roots.
+    Invoke-RepoGit merge --allow-unrelated-histories --no-edit --no-overwrite-ignore origin/main
+    if ($LASTEXITCODE -eq 0) { return }
+
+    $conflicts = @(Invoke-RepoGit diff --name-only --diff-filter=U)
+    if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect merge conflicts.' }
+    if ($conflicts.Count -eq 1 -and $conflicts[0] -ceq 'README.md') {
+        # Keep the requested full site README instead of GitHub's starter README.
+        Run-Git checkout --ours -- README.md
+        Run-Git add -- README.md
+        Run-Git commit --no-edit
+        return
+    }
+
+    Invoke-RepoGit rev-parse --verify --quiet MERGE_HEAD *> $null
+    if ($LASTEXITCODE -eq 0) { Run-Git merge --abort }
+    throw 'Remote merge failed. No push was attempted. Inspect the Git output above.'
+}
+
 if (-not (Test-Path -LiteralPath '.git')) { Run-Git init -b main }
 $branchOutput = Invoke-RepoGit branch --show-current
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read the local repository.' }
@@ -44,7 +70,8 @@ if ($LASTEXITCODE -eq 1) {
     throw 'Cannot inspect staged changes.'
 }
 
-# A normal push refuses to overwrite unrelated remote work; never force-push.
+# Preserve remote commits before a normal push; never force-push.
+Sync-RemoteMain
 Run-Git push -u origin main
 
 & gh api 'repos/Web3Hippo/insuarance/pages' --silent 2>$null

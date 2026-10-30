@@ -52,6 +52,8 @@ node scripts/sync-comparison.cjs
 
 GitHub CLI(`gh`)와 Git이 설치된 사용자 PowerShell에서 아래 명령을 실행하면, 로그인·커밋·푸시·Pages 설정을 이어서 진행합니다. 원격 저장소가 이미 있어야 하며, 강제 푸시는 하지 않습니다.
 
+푸시 전에 원격 `main`을 가져와 병합합니다. GitHub에서 만든 초기 커밋과 로컬 이력이 독립적인 경우도 처리하며, `README.md`만 충돌하면 준비한 비교표 안내문을 유지합니다. 다른 충돌은 병합을 취소하고 중단합니다.
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\publish.ps1
 ```
