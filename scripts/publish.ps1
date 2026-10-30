@@ -76,7 +76,7 @@ Run-Git push -u origin main
 
 & gh api 'repos/Web3Hippo/insuarance/pages' --silent 2>$null
 $pagesMethod = if ($LASTEXITCODE -eq 0) { 'PUT' } else { 'POST' }
-'{"build_type":"workflow"}' | & gh api 'repos/Web3Hippo/insuarance/pages' --method $pagesMethod --input - --silent
+& gh api 'repos/Web3Hippo/insuarance/pages' --method $pagesMethod --raw-field 'build_type=workflow' --silent
 if ($LASTEXITCODE -ne 0) {
     throw 'Push completed, but Pages setup failed. Set Settings > Pages > Source to GitHub Actions.'
 }
