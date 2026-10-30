@@ -1,0 +1,16 @@
+# Public comparison site: explicitly version the files below.
+/*
+!/.gitignore
+!/README.md
+!/index.html
+!/assets/
+!/scripts/
+!/.github/
+
+# Generated deployment directory and local scratch files.
+/_site/
+**/node_modules/
+**/.DS_Store
+**/Thumbs.db
+**/.env
+**/.env.*

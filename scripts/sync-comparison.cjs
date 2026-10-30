@@ -1,0 +1,10 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const source = path.join(root, '신생아_보험_사례조사', '15_현대_KB_기존_수정_보장비교표');
+let html = fs.readFileSync(source + '.html', 'utf8');
+html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="현대해상과 KB손해보험 기존안·수정안의 보장금액과 보험료 비교표">');
+fs.mkdirSync(path.join(root, 'assets'), { recursive: true });
+fs.writeFileSync(path.join(root, 'index.html'), html);
+fs.copyFileSync(source + '.png', path.join(root, 'assets', 'comparison.png'));
+console.log('Updated index.html and assets/comparison.png');
